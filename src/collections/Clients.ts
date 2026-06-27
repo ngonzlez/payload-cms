@@ -19,6 +19,13 @@ export const Clients: CollectionConfig = {
       required: true,
     },
     { name: 'name', label: 'Nombre', type: 'text', required: true },
+    {
+      name: 'logo',
+      label: 'Logo',
+      type: 'upload',
+      relationTo: 'media',
+      required: false,
+    },
     { name: 'order', label: 'Orden', type: 'number', defaultValue: 0 },
   ],
 }
