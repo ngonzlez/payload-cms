@@ -35,5 +35,35 @@ export const Sites: CollectionConfig = {
       type: 'text',
       admin: { description: 'Ej: ferraso.com' },
     },
+    {
+      name: 'contactGroup',
+      label: 'Información de contacto',
+      type: 'collapsible',
+      fields: [
+        {
+          name: 'phone',
+          label: 'Teléfono / WhatsApp',
+          type: 'text',
+          admin: { description: 'Solo números, sin + ni espacios. Ej: 595986348909' },
+        },
+        {
+          name: 'email',
+          label: 'Email',
+          type: 'email',
+        },
+        {
+          name: 'instagram',
+          label: 'Instagram URL',
+          type: 'text',
+          admin: { description: 'URL completa. Ej: https://www.instagram.com/micliente/' },
+        },
+        {
+          name: 'facebook',
+          label: 'Facebook URL',
+          type: 'text',
+          admin: { description: 'URL completa. Ej: https://www.facebook.com/micliente' },
+        },
+      ],
+    },
   ],
 }
