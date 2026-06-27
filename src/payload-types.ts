@@ -68,7 +68,12 @@ export interface Config {
   blocks: {};
   collections: {
     users: User;
+    sites: Site;
     media: Media;
+    services: Service;
+    clients: Client;
+    stats: Stat;
+    'client-photos': ClientPhoto;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -77,14 +82,19 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
+    sites: SitesSelect<false> | SitesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    services: ServicesSelect<false> | ServicesSelect<true>;
+    clients: ClientsSelect<false> | ClientsSelect<true>;
+    stats: StatsSelect<false> | StatsSelect<true>;
+    'client-photos': ClientPhotosSelect<false> | ClientPhotosSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
   };
   db: {
-    defaultIDType: string;
+    defaultIDType: number;
   };
   fallbackLocale: null;
   globals: {};
@@ -122,7 +132,12 @@ export interface UserAuthOperations {
  * via the `definition` "users".
  */
 export interface User {
-  id: string;
+  id: number;
+  role: 'admin' | 'client';
+  /**
+   * Slug del site que puede gestionar (solo para rol Cliente). Ej: ferraso
+   */
+  site?: string | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -143,11 +158,31 @@ export interface User {
   collection: 'users';
 }
 /**
+ * Un registro por cliente/landing page.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sites".
+ */
+export interface Site {
+  id: number;
+  name: string;
+  /**
+   * Ej: ferraso, cliente2 (solo letras y guiones)
+   */
+  slug: string;
+  /**
+   * Ej: ferraso.com
+   */
+  domain?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
 export interface Media {
-  id: string;
+  id: number;
   alt: string;
   updatedAt: string;
   createdAt: string;
@@ -162,11 +197,86 @@ export interface Media {
   focalY?: number | null;
 }
 /**
+ * Servicios de cada cliente.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "services".
+ */
+export interface Service {
+  id: number;
+  /**
+   * Cliente al que pertenece este servicio.
+   */
+  site: number | Site;
+  title: string;
+  subtitle: string;
+  description: string;
+  items?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  icon?: ('Building2' | 'Landmark' | 'Calculator' | 'FileText' | 'Shield') | null;
+  image?: (number | null) | Media;
+  order?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Clientes habilitados de cada site.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "clients".
+ */
+export interface Client {
+  id: number;
+  site: number | Site;
+  name: string;
+  order?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Estadísticas de cada site.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stats".
+ */
+export interface Stat {
+  id: number;
+  site: number | Site;
+  value: string;
+  label: string;
+  icon?: ('Users' | 'Award' | 'Shield' | 'Clock' | 'Star') | null;
+  order?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Fotos del carrusel de cada site.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "client-photos".
+ */
+export interface ClientPhoto {
+  id: number;
+  site: number | Site;
+  photo: number | Media;
+  /**
+   * Ej: Habilitación aprobada — Clínica XYZ, Asunción
+   */
+  alt: string;
+  order?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
-  id: string;
+  id: number;
   key: string;
   data:
     | {
@@ -183,20 +293,40 @@ export interface PayloadKv {
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
-  id: string;
+  id: number;
   document?:
     | ({
         relationTo: 'users';
-        value: string | User;
+        value: number | User;
+      } | null)
+    | ({
+        relationTo: 'sites';
+        value: number | Site;
       } | null)
     | ({
         relationTo: 'media';
-        value: string | Media;
+        value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'services';
+        value: number | Service;
+      } | null)
+    | ({
+        relationTo: 'clients';
+        value: number | Client;
+      } | null)
+    | ({
+        relationTo: 'stats';
+        value: number | Stat;
+      } | null)
+    | ({
+        relationTo: 'client-photos';
+        value: number | ClientPhoto;
       } | null);
   globalSlug?: string | null;
   user: {
     relationTo: 'users';
-    value: string | User;
+    value: number | User;
   };
   updatedAt: string;
   createdAt: string;
@@ -206,10 +336,10 @@ export interface PayloadLockedDocument {
  * via the `definition` "payload-preferences".
  */
 export interface PayloadPreference {
-  id: string;
+  id: number;
   user: {
     relationTo: 'users';
-    value: string | User;
+    value: number | User;
   };
   key?: string | null;
   value?:
@@ -229,7 +359,7 @@ export interface PayloadPreference {
  * via the `definition` "payload-migrations".
  */
 export interface PayloadMigration {
-  id: string;
+  id: number;
   name?: string | null;
   batch?: number | null;
   updatedAt: string;
@@ -240,6 +370,8 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  role?: T;
+  site?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -259,6 +391,17 @@ export interface UsersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sites_select".
+ */
+export interface SitesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  domain?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
@@ -274,6 +417,63 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "services_select".
+ */
+export interface ServicesSelect<T extends boolean = true> {
+  site?: T;
+  title?: T;
+  subtitle?: T;
+  description?: T;
+  items?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  icon?: T;
+  image?: T;
+  order?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "clients_select".
+ */
+export interface ClientsSelect<T extends boolean = true> {
+  site?: T;
+  name?: T;
+  order?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stats_select".
+ */
+export interface StatsSelect<T extends boolean = true> {
+  site?: T;
+  value?: T;
+  label?: T;
+  icon?: T;
+  order?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "client-photos_select".
+ */
+export interface ClientPhotosSelect<T extends boolean = true> {
+  site?: T;
+  photo?: T;
+  alt?: T;
+  order?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
