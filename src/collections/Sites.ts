@@ -11,7 +11,13 @@ export const Sites: CollectionConfig = {
   access: {
     read: () => true,
     create: ({ req: { user } }) => (user as any)?.role === 'admin',
-    update: ({ req: { user } }) => (user as any)?.role === 'admin',
+    update: ({ req: { user } }) => {
+      if ((user as any)?.role === 'admin') return true
+      if ((user as any)?.role === 'client' && (user as any)?.site) {
+        return { slug: { equals: (user as any).site } }
+      }
+      return false
+    },
     delete: ({ req: { user } }) => (user as any)?.role === 'admin',
   },
   fields: [
@@ -20,6 +26,7 @@ export const Sites: CollectionConfig = {
       label: 'Nombre del cliente',
       type: 'text',
       required: true,
+      access: { update: ({ req: { user } }) => (user as any)?.role === 'admin' },
     },
     {
       name: 'slug',
@@ -28,12 +35,14 @@ export const Sites: CollectionConfig = {
       required: true,
       unique: true,
       admin: { description: 'Ej: ferraso, cliente2 (solo letras y guiones)' },
+      access: { update: ({ req: { user } }) => (user as any)?.role === 'admin' },
     },
     {
       name: 'domain',
       label: 'Dominio',
       type: 'text',
       admin: { description: 'Ej: ferraso.com' },
+      access: { update: ({ req: { user } }) => (user as any)?.role === 'admin' },
     },
     {
       name: 'phone',
