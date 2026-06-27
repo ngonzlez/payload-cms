@@ -174,6 +174,19 @@ export interface Site {
    * Ej: ferraso.com
    */
   domain?: string | null;
+  /**
+   * Solo números, sin + ni espacios. Ej: 595986348909
+   */
+  phone?: string | null;
+  email?: string | null;
+  /**
+   * URL completa. Ej: https://www.instagram.com/micliente/
+   */
+  instagram?: string | null;
+  /**
+   * URL completa. Ej: https://www.facebook.com/micliente
+   */
+  facebook?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -233,6 +246,7 @@ export interface Client {
   id: number;
   site: number | Site;
   name: string;
+  logo?: (number | null) | Media;
   order?: number | null;
   updatedAt: string;
   createdAt: string;
@@ -397,6 +411,10 @@ export interface SitesSelect<T extends boolean = true> {
   name?: T;
   slug?: T;
   domain?: T;
+  phone?: T;
+  email?: T;
+  instagram?: T;
+  facebook?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -446,6 +464,7 @@ export interface ServicesSelect<T extends boolean = true> {
 export interface ClientsSelect<T extends boolean = true> {
   site?: T;
   name?: T;
+  logo?: T;
   order?: T;
   updatedAt?: T;
   createdAt?: T;
