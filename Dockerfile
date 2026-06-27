@@ -2,6 +2,7 @@
 # From https://github.com/vercel/next.js/blob/canary/examples/with-docker/Dockerfile
 
 FROM node:22.17.0-alpine AS base
+RUN npm install -g pnpm@10
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -11,7 +12,7 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY package.json pnpm-lock.yaml ./
-RUN npm install -g pnpm@10 && pnpm i --frozen-lockfile
+RUN pnpm i --frozen-lockfile
 
 
 # Rebuild the source code only when needed
